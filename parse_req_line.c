@@ -1,36 +1,39 @@
 #include "parse_req_line.h"
 
-char *parse_req_line(char *src)
+int parse_req_line(char *reqline, char **method, char **file, char **extension)
 {
-  char *file;
-  char *method;
-  char reqlen = strlen(src);
+  char *oc1 = strchr(reqline, ' ');
+  int methodlen = oc1 - reqline;
+  *method = calloc( methodlen + 1, sizeof(char));
+  strncpy(*method, reqline, methodlen);
 
-  char *ws1 = strchr(src, ' ');
-  char *ws2 = strchr(ws1+1, ' ');
-
-  int len1 = ws1 - src;
-  int len2 = ws2 - (ws1+1);
-
-  method = malloc(len1 * sizeof(char));
-  char *p = src;
-  for(int i = 0; i < len1; i++){
-    method[i] = *p;
-    p++;
+  oc1++;
+  char *oc2 = strchr(oc1, ' ');
+  int filelen = oc2 - oc1;
+  if(filelen == 1){
+    *file = "index.html";
+    *extension = "html";
+    return 0;
   }
-  method[len1] = '\0';
 
-  file = malloc(len2 * sizeof(char));
-  char *q = ws1 + 1;
-  for(int i = 0; i < len2; i++){
-    file[i] = *q;
-    q++;
-  }
-  file[len2] = '\0';
+  oc1++;
+  *file = calloc(filelen, sizeof(char));
+  strncpy(*file, oc1, filelen - 1);
 
-  if(strcmp(method, "GET") > 0){
-    return NULL;
-  }
-  return file;
+  char *oc3 = strchr(*file, '.');
+  oc3++;
+  *extension = calloc(strlen(oc3), sizeof(char));
+  strncpy(*extension, oc3, strlen(oc3));
 
+  return 0;
+}
+
+
+char *get_request_line(char *request)
+{
+  char *first_line_break = strchr(request, '\n');
+  int request_line_len = first_line_break - request;
+  char *request_line = malloc(request_line_len * sizeof(char));
+  strncpy(request_line, request, request_line_len);
+  return request_line;
 }
