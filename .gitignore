@@ -1,2 +1,6 @@
 todo
 test.c
+*.html
+*.css
+*.ts
+*.js
